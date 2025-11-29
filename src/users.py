@@ -16,6 +16,11 @@ class Users:
         return {
             "username": username
         }
+    
+    def show_password(self, username):
+        return {
+            "password": self.__users_list[username]
+        }
 
     def authorize(self, username, password) -> bool:
         return self.__users_list.__contains__(username) and self.__users_list[username] == hash(password)
