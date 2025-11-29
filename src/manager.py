@@ -2,10 +2,12 @@
 from users import Users
 from programs import ProgramsPool
 
+import wget
+
 class Manager:
     def __init__(self):
-        users = Users()
-        programsPool = ProgramsPool()
+        self.users = Users()
+        self.programsPool = ProgramsPool()
 
     def create_new_user(self,username: str, password: str):
         if self.users.__users_list.__contains__(username):
@@ -13,6 +15,9 @@ class Manager:
         self.users.add_user(username, password)
         self.programsPool.create_dir(hash(username))
 
-    def download_program(self, identity, url: str, alias: str):
-        identity = hash(identity)
-        pass
+    def download_program(self, username, alias: str, download_url: str):
+        username = hash(username)
+        url = self.programsPool.get_env_path(username)
+        wget.download(download_url, (url + '/' + alias))
+
+        

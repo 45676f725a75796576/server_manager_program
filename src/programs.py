@@ -14,6 +14,7 @@ class ProgramsPool:
         self.__isolated_dirs[identity] = tempfile.mkdtemp(prefix=(identity+'_env_'))
 
     def run_isolated(self, command, identity):
+
         result = subprocess.run(
             command,
             cwd=self.__isolated_dirs[identity],
@@ -26,3 +27,6 @@ class ProgramsPool:
             "stdout": result.stdout,
             "stderr": result.stderr
         }
+    
+    def get_env_path(self, identity) -> str:
+        return self.__isolated_dirs[identity]
