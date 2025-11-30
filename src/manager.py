@@ -2,8 +2,10 @@
 from users import Users
 from programs import ProgramsPool
 
+import os
+
 from flask import Flask
-from flask import request
+from flask import request, jsonify, abort
 
 import wget
 
@@ -27,6 +29,21 @@ app = Flask(__name__)
 
 manager = Manager()
 
+def build_tree(path):
+    tree = {}
+    try:
+        items = os.listdir(path)
+    except Exception:
+        return tree
+
+    for item in items:
+        full = os.path.join(path, item)
+        if os.path.isdir(full):
+            tree[item] = build_tree(full)
+        else:
+            tree[item] = None
+    return tree
+
 @app.route('/authorize', methods=['GET'])
 def authorize():
     data = request.get_json(silent=True)
@@ -35,4 +52,18 @@ def authorize():
         password = data["password"]
     except Exception as e:
         abort(400, description=f"Invalid data: {e}")
+    if manager.users.get_user(username):
+        return { "username": username }
+@app.route('/directory', methods=['GET'])
+def get_directory():
+    username = request.args.get("username")
+    if not username:
+        abort(400, "Missing username")
+
+    user_path = os.path.join(manager.programsPool.get_env_path(hash(username)), username)
+
+    if not os.path.exists(user_path):
+        abort(404, "User directory not found")
+
+    return jsonify(build_tree(user_path))
         

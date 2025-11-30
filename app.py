@@ -1,6 +1,4 @@
-import socket
-import json
-import os
+import requests
 import tkinter as tk
 from tkinter import ttk
 
@@ -10,11 +8,10 @@ server_port = 5000
 username = 'guest'
 
 def request_directory_tree(ip, port):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((ip, port))
-        s.sendall(b"GET_TREE")
-        data = s.recv(10_000_000)
-    return json.loads(data.decode("utf-8"))
+    url = f"http://{server_ip}:{server_port}/directory"
+    r = requests.get(url, params={"username": username})
+    r.raise_for_status()
+    return r.json()
 
 def populate_tree(tree, parent, data):
     for name, content in data.items():
@@ -42,6 +39,9 @@ def build_gui(directory_tree):
     main.add(frame_right)
 
     root.mainloop()
+
+def authorize():
+    username = 'guest'
 
 if __name__ == '__main__':
     directory_tree = request_directory_tree(server_ip, server_port)
