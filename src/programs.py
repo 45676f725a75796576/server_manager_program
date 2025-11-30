@@ -6,6 +6,7 @@ import os
 class ProgramsPool:
     def __init__(self):
         self.__isolated_dirs = {}
+        self.__identity_programs = {}
 
     def create_dir(self, identity):
         if self.__isolated_dirs.__contains__(identity):

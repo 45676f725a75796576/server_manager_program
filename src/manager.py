@@ -2,6 +2,9 @@
 from users import Users
 from programs import ProgramsPool
 
+from flask import Flask
+from flask import request
+
 import wget
 
 class Manager:
@@ -20,4 +23,16 @@ class Manager:
         url = self.programsPool.get_env_path(username)
         wget.download(download_url, (url + '/' + alias))
 
+app = Flask(__name__)
+
+manager = Manager()
+
+@app.route('/authorize', methods=['GET'])
+def authorize():
+    data = request.get_json(silent=True)
+    try:
+        username = data["username"]
+        password = data["password"]
+    except Exception as e:
+        abort(400, description=f"Invalid data: {e}")
         
