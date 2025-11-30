@@ -52,7 +52,7 @@ def authorize():
         password = data["password"]
     except Exception as e:
         abort(400, description=f"Invalid data: {e}")
-    if manager.users.get_user(username):
+    if manager.users.authorize(username, password):
         return { "username": username }
 @app.route('/directory', methods=['GET'])
 def get_directory():

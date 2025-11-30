@@ -44,5 +44,11 @@ def authorize():
     username = 'guest'
 
 if __name__ == '__main__':
-    directory_tree = request_directory_tree(server_ip, server_port)
-    build_gui(directory_tree)  
+    try:
+        directory_tree = request_directory_tree(server_ip, server_port)
+        build_gui(directory_tree) 
+    except Exception:
+        data = { "connection error": None }
+        populate_tree(directory_tree, username, data)
+        build_gui(directory_tree)
+     
