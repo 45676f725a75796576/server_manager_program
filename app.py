@@ -49,6 +49,9 @@ def authorization_window():
     auth_window = tk.Tk()
     auth_window.title("Authorize")
 
+    auth_main = tk.PanedWindow(auth_window, orient=tk.HORIZONTAL)
+    auth_main.pack(fill=tk.ALL, expand=True)
+
 if __name__ == '__main__':
     try:
         directory_tree = request_directory_tree(server_ip, server_port)
