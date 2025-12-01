@@ -8,10 +8,13 @@ server_port = 5000
 username = 'guest'
 
 def request_directory_tree(ip, port):
-    url = f"http://{server_ip}:{server_port}/directory"
-    r = requests.get(url, params={"username": username})
-    r.raise_for_status()
-    return r.json()
+    try:
+        url = f"http://{server_ip}:{server_port}/directory"
+        r = requests.get(url, params={"username": username})
+        r.raise_for_status()
+        return r.json()
+    except:
+        return {}
 
 def populate_tree(tree, parent, data):
     for name, content in data.items():
@@ -36,12 +39,15 @@ def build_gui(directory_tree):
     populate_tree(tree, username, directory_tree)
 
     frame_right = tk.Frame(main, bg="#CFCFCF")
-    main.add(frame_right)
+    main.add(frame_right, width=300, height=600)
 
     root.mainloop()
 
-def authorize():
+def authorization_window():
     username = 'guest'
+
+    auth_window = tk.Tk()
+    auth_window.title("Authorize")
 
 if __name__ == '__main__':
     try:
@@ -49,6 +55,7 @@ if __name__ == '__main__':
         build_gui(directory_tree) 
     except Exception:
         data = { "connection error": None }
+        directory_tree = { "connection error": None }
         populate_tree(directory_tree, username, data)
         build_gui(directory_tree)
      
