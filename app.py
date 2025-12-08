@@ -17,6 +17,10 @@ def request_directory_tree(ip, port):
         return {}
 
 def populate_tree(tree, parent, data):
+    if len(data.items()) < 1:
+        tree.insert(parent, "end", text="directory is empty")
+        return
+
     for name, content in data.items():
         if isinstance(content, dict):
             node = tree.insert(parent, "end", text=name, open=False)
@@ -59,6 +63,7 @@ if __name__ == '__main__':
     except Exception:
         data = { "connection error": None }
         directory_tree = { "connection error": None }
-        populate_tree(directory_tree, username, data)
-        build_gui(directory_tree)
+        tree = ttk.Treeview()
+        populate_tree(tree, username, directory_tree)
+        build_gui(tree)
      

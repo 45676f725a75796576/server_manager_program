@@ -11,6 +11,9 @@ import wget
 
 import secrets
 
+SERVER_PORT = 8080
+SERVER_ADDRESS = '0.0.0.0'
+
 class Manager:
     def __init__(self):
         self.users = Users()
@@ -90,3 +93,6 @@ def logout():
         if manager.loggedUsers[lu] == token:
             manager.loggedUsers.pop[lu]
         
+if __name__ == '__main__':
+    app.run(SERVER_ADDRESS, SERVER_PORT)
+    print(f"server runs on {SERVER_ADDRESS}:{SERVER_PORT}")
