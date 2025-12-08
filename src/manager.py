@@ -9,10 +9,13 @@ from flask import request, jsonify, abort
 
 import wget
 
+import secrets
+
 class Manager:
     def __init__(self):
         self.users = Users()
         self.programsPool = ProgramsPool()
+        self.loggedUsers = {}
 
     def create_new_user(self,username: str, password: str):
         if self.users.__users_list.__contains__(username):
@@ -44,6 +47,7 @@ def build_tree(path):
             tree[item] = None
     return tree
 
+# to access server at first you have to authorize
 @app.route('/authorize', methods=['GET'])
 def authorize():
     data = request.get_json(silent=True)
@@ -53,17 +57,36 @@ def authorize():
     except Exception as e:
         abort(400, description=f"Invalid data: {e}")
     if manager.users.authorize(username, password):
-        return { "username": username }
+        manager.loggedUsers[username] = secrets.token_hex(16)
+        return { "username": manager.loggedUsers[username] }
+    
+# to see your working directory
 @app.route('/directory', methods=['GET'])
 def get_directory():
-    username = request.args.get("username")
-    if not username:
-        abort(400, "Missing username")
+    token = request.args.get("token")
+    if not token:
+        abort(400, "Missing user token")
 
-    user_path = os.path.join(manager.programsPool.get_env_path(hash(username)), username)
+    for lu in manager.loggedUsers.keys:
+        if manager.loggedUsers[lu] == token:
+            user = lu
+
+    user_path = os.path.join(manager.programsPool.get_env_path(hash(user)), user)
 
     if not os.path.exists(user_path):
         abort(404, "User directory not found")
 
     return jsonify(build_tree(user_path))
+
+
+# everytime you know, that you are done with work, please logout,
+# token you got can be stolen and used on this server
+@app.route('/logout', methods=['GET'])
+def logout():
+    token = request.args.get("token")
+    if not token:
+        abort(400, "Missing user token")
+    for lu in manager.loggedUsers.keys:
+        if manager.loggedUsers[lu] == token:
+            manager.loggedUsers.pop[lu]
         
