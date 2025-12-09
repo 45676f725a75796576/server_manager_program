@@ -21,6 +21,9 @@ class Users:
         return {
             "password": self.__users_list[username]
         }
+    
+    def user_exists(self, username: str) -> bool:
+        return self.__users_list.__contains__(username)
 
     def authorize(self, username, password) -> bool:
         return self.__users_list.__contains__(username) and self.__users_list[username] == hash(password)

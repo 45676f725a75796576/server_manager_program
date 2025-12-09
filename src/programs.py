@@ -9,10 +9,12 @@ class ProgramsPool:
         self.__identity_programs = {}
 
     def create_dir(self, identity):
+        identity = str(identity)
+
         if self.__isolated_dirs.__contains__(identity):
             raise Exception('Directory already exists')
         
-        self.__isolated_dirs[identity] = tempfile.mkdtemp(prefix=(identity+'_env_'))
+        self.__isolated_dirs[identity] = tempfile.mkdtemp(prefix=(identity+'_env'))
 
     def run_isolated(self, command, identity):
 

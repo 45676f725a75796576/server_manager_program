@@ -21,7 +21,7 @@ class Manager:
         self.loggedUsers = {}
 
     def create_new_user(self,username: str, password: str):
-        if self.users.__users_list.__contains__(username):
+        if self.users.user_exists(username):
             raise Exception('User already exist')
         self.users.add_user(username, password)
         self.programsPool.create_dir(hash(username))
@@ -92,7 +92,18 @@ def logout():
     for lu in manager.loggedUsers.keys:
         if manager.loggedUsers[lu] == token:
             manager.loggedUsers.pop[lu]
+
+# todo: install program into root of user directory
+@app.route('/directory', methods=['PUT'])
+def install_program():
+    pass
+
+# run/stop program
+@app.route('/directory/{}', methods=['PUT'])
+def run_program():
+    pass
         
 if __name__ == '__main__':
+    manager.create_new_user('admin', '4dm1n5')
     app.run(SERVER_ADDRESS, SERVER_PORT)
     print(f"server runs on {SERVER_ADDRESS}:{SERVER_PORT}")
