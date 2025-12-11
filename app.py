@@ -16,7 +16,7 @@ def request_directory_tree(ip, port):
         url = f"http://{server_ip}:{server_port}/directory"
         r = requests.get(url, params={"token": token})
         r.raise_for_status()
-        return r.json()
+        return dict(r.json()) + {"errors": f"{r.status_code}"}
     except:
         return {}
 
@@ -27,7 +27,6 @@ def authorize():
     r = requests.get(url, params={"username": username, "password": password})
     r.raise_for_status()
     token = r.json()["username"]
-    print(token)
 
 def logout():
     try:
@@ -88,8 +87,6 @@ if __name__ == '__main__':
         authorize()
         directory_tree = { username: request_directory_tree(server_ip, server_port) }
         build_gui(directory_tree) 
-
-        print(str(token))
     except Exception as e:
         data = { "connection error": {f"{repr(e)}" : { f"{str(r.content)}": None }} }
         build_gui(data)
