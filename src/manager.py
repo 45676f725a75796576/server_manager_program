@@ -24,7 +24,7 @@ class Manager:
         if self.users.user_exists(username):
             raise Exception('User already exist')
         self.users.add_user(username, password)
-        self.programsPool.create_dir(hash(username))
+        self.programsPool.create_dir(username)
 
     def download_program(self, username, alias: str, download_url: str):
         username = hash(username)
@@ -39,8 +39,9 @@ def build_tree(path):
     tree = {}
     try:
         items = os.listdir(path)
-    except Exception:
-        return tree
+    except Exception as e:
+        print(repr(e))
+        return tree + {repr(e): None}
 
     for item in items:
         full = os.path.join(path, item)
@@ -53,15 +54,17 @@ def build_tree(path):
 # to access server at first you have to authorize
 @app.route('/authorize', methods=['GET'])
 def authorize():
-    data = request.get_json(silent=True)
     try:
-        username = data["username"]
-        password = data["password"]
+    
+        username = request.args.get('username')
+        password = request.args.get('password')
+
+        if manager.users.authorize(username, password):
+            manager.loggedUsers[username] = secrets.token_hex(16)
+            return { "username": manager.loggedUsers[username] }
+        
     except Exception as e:
-        abort(400, description=f"Invalid data: {e}")
-    if manager.users.authorize(username, password):
-        manager.loggedUsers[username] = secrets.token_hex(16)
-        return { "username": manager.loggedUsers[username] }
+        print(repr(e))
     
 # to see your working directory
 @app.route('/directory', methods=['GET'])
@@ -70,11 +73,11 @@ def get_directory():
     if not token:
         abort(400, "Missing user token")
 
-    for lu in manager.loggedUsers.keys:
+    for lu in manager.loggedUsers.keys():
         if manager.loggedUsers[lu] == token:
             user = lu
 
-    user_path = os.path.join(manager.programsPool.get_env_path(hash(user)), user)
+    user_path = os.path.join(manager.programsPool.get_env_path(user), user)
 
     if not os.path.exists(user_path):
         abort(404, "User directory not found")
@@ -84,14 +87,16 @@ def get_directory():
 
 # everytime you know, that you are done with work, please logout,
 # token you got can be stolen and used on this server
-@app.route('/logout', methods=['GET'])
+@app.route('/logout', methods=['DELETE'])
 def logout():
     token = request.args.get("token")
     if not token:
         abort(400, "Missing user token")
-    for lu in manager.loggedUsers.keys:
+    for lu in manager.loggedUsers.keys():
         if manager.loggedUsers[lu] == token:
-            manager.loggedUsers.pop[lu]
+            manager.loggedUsers.pop(lu)
+            return jsonify({"deleted token": "succesfully"})
+    return jsonify({"deleted token": "token not found"})
 
 # todo: install program into root of user directory
 @app.route('/directory', methods=['PUT'])

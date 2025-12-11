@@ -7,9 +7,11 @@ server_port = 8080
 
 username = 'admin'
 password = '4dm1n5'
+
 token = ''
 
 def request_directory_tree(ip, port):
+    global r
     try:
         url = f"http://{server_ip}:{server_port}/directory"
         r = requests.get(url, params={"token": token})
@@ -18,25 +20,25 @@ def request_directory_tree(ip, port):
     except:
         return {}
 
-def authorize():
-    try:
-        url = f"http://{server_ip}:{server_port}/authorize"
-        r = requests.get(url, params={"username": username, "password": password})
-        r.raise_for_status()
-        token = r.json()["username"]
-    except:
-        token = ""     
+def authorize():    
+    global token
+    global r
+    url = f"http://{server_ip}:{server_port}/authorize"
+    r = requests.get(url, params={"username": username, "password": password})
+    r.raise_for_status()
+    token = r.json()["username"]
+    print(token)
 
 def logout():
     try:
-        url = f"http://{server_ip}:{server_port}/authorize"
-        r = requests.get(url, params={"token": token})
+        url = f"http://{server_ip}:{server_port}/logout"
+        r = requests.delete(url, params={"token": token})
         r.raise_for_status()
     except:
         print("error occured")
+        
 
-def populate_tree(tree, parent, data):
-    print(type(data))
+def populate_tree(tree: ttk.Treeview, parent: str, data: dict):
     if len(data.items()) < 1:
         tree.insert(parent, "end", text="directory is empty")
         return
@@ -84,12 +86,10 @@ def authorization_window():
 if __name__ == '__main__':
     try:
         authorize()
-        directory_tree = request_directory_tree(server_ip, server_port)
+        directory_tree = { username: request_directory_tree(server_ip, server_port) }
         build_gui(directory_tree) 
-    except Exception:
-        data = { "connection error": None }
-        directory_tree = { "connection error": None }
-        tree = ttk.Treeview()
-        populate_tree(tree, "", directory_tree)
-        build_gui(directory_tree)
-     
+
+        print(str(token))
+    except Exception as e:
+        data = { "connection error": {f"{repr(e)}" : { f"{str(r.content)}": None }} }
+        build_gui(data)
