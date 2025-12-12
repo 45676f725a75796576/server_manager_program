@@ -77,7 +77,7 @@ def get_directory():
         if manager.loggedUsers[lu] == token:
             user = lu
 
-    user_path = os.path.join(manager.programsPool.get_env_path(user), user)
+    user_path = os.path.join(manager.programsPool.get_env_path(user))
 
     if not os.path.exists(user_path):
         abort(404, "User directory not found")
@@ -101,7 +101,19 @@ def logout():
 # todo: install program into root of user directory
 @app.route('/directory', methods=['PUT'])
 def install_program():
-    pass
+    token = request.args.get("token")
+    json = dict(request.json())
+    if not token:
+        abort(400, "Missing user token")
+    try:
+        for lu in manager.loggedUsers.keys():
+            if manager.loggedUsers[lu] == token:
+                url = json["url"]
+                alias = json["as"]
+                manager.download_program(lu, alias, url)
+    except Exception as e:
+        abort(400, "Missing data")
+
 
 # run/stop program
 @app.route('/directory/{}', methods=['PUT'])

@@ -82,6 +82,13 @@ def authorization_window():
     auth_main = tk.PanedWindow(auth_window, orient=tk.HORIZONTAL)
     auth_main.pack(fill=tk.ALL, expand=True)
 
+def installation_window():
+    install_window = tk.Tk()
+    install_window.title("Install")
+
+    install_main = tk.PanedWindow(install_window, orient=tk.HORIZONTAL)
+    install_main.pack(fill=tk.ALL, expand=True)
+
 if __name__ == '__main__':
     try:
         authorize()
